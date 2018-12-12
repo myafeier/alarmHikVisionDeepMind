@@ -143,7 +143,7 @@ public class HkAlarm extends Thread {
     //布防
     private boolean setupAlarmChan() {
         if (lUserID.intValue() == -1) {
-            System.out.printf("请先注册设备%s\n",this.m_sDeviceIP);
+            System.out.printf("请先注册设备:%s\n",this.m_sDeviceIP);
             return false;
         }
         if (lAlarmHandle.intValue() < 0)//尚未布防,需要布防
@@ -152,7 +152,7 @@ public class HkAlarm extends Thread {
                 fMSFCallBack_V31 = new FMSGCallBack_V31();
                 Pointer pUser = null;
                 if (!hCNetSDK.NET_DVR_SetDVRMessageCallBack_V31(fMSFCallBack_V31, pUser)) {
-                    System.out.println("设置回调函数失败!");
+                    System.out.printf("设置回调函数失败,%s!\n",m_sDeviceIP);
                     return false;
                 }
             }
@@ -163,12 +163,12 @@ public class HkAlarm extends Thread {
             m_strAlarmInfo.write();
             lAlarmHandle = hCNetSDK.NET_DVR_SetupAlarmChan_V41(lUserID, m_strAlarmInfo);
             if (lAlarmHandle.intValue() == -1) {
-                System.out.println("布防失败");
+                System.out.printf("%s布防失败\n",m_sDeviceIP);
                 return false;
             }
         }
 
-        System.out.println("布防成功");
+        System.out.printf("%s布防成功\n",m_sDeviceIP);
         return true;
     }
 
