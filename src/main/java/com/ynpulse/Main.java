@@ -7,7 +7,9 @@ import com.burgstaller.okhttp.digest.DigestAuthenticator;
 import com.hikvision.HCNetSDK;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.ynpulse.com.ynpulse.entity.Config;
 import okhttp3.*;
+import org.ho.yaml.Yaml;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -18,17 +20,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
-    static String schoolUUID ;  //学校id
-    static String m_sDeviceIP;//已登录设备的IP地址
-    static short m_sDevicePort; //设备ip
-    static String m_sDeviceUser; //设备用户
-    static String m_sDevicePwd ; //设备密码
-    static String serverPostUrl;  //服务器url
-    static String serverUser; //服务器端用户名
-    static String serverPwd; //服务器端密码
+    static Config config; //配置
 
     public BufferedOutputStream logStream=null;
-    static Properties properties=new Properties();  //配置文件
 
     static HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
     HCNetSDK.NET_DVR_DEVICEINFO_V30 m_strDeviceInfo;//设备信息
@@ -38,20 +32,17 @@ public class Main {
     HCNetSDK.FMSGCallBack fMSFCallBack;//报警回调函数实现
     HCNetSDK.FMSGCallBack_V31 fMSFCallBack_V31;//报警回调函数实现
 
-
-    final DigestAuthenticator authenticatorOfDevice=new DigestAuthenticator(new Credentials(m_sDeviceUser,m_sDevicePwd));
+    static DigestAuthenticator authenticatorOfDevice=null;
     final Map<String, CachingAuthenticator> authCacheOfDevice=new ConcurrentHashMap<String, CachingAuthenticator>();
-    final OkHttpClient clientOfDevice=new OkHttpClient.Builder()
-            .authenticator(new CachingAuthenticatorDecorator(this.authenticatorOfDevice, this.authCacheOfDevice))
-            .addInterceptor(new AuthenticationCacheInterceptor(authCacheOfDevice))
-            .build() ;
+    static  OkHttpClient clientOfDevice=null;
 
-    final DigestAuthenticator authenticatorOfServer=new DigestAuthenticator(new Credentials(serverUser,serverPwd));
+
+
+    static DigestAuthenticator authenticatorOfServer=null;
     final Map<String, CachingAuthenticator> authCacheOfServer=new ConcurrentHashMap<String, CachingAuthenticator>();
-    final OkHttpClient clientOfServer=new OkHttpClient.Builder()
-            .authenticator(new CachingAuthenticatorDecorator(this.authenticatorOfServer, this.authCacheOfServer))
-            .addInterceptor(new AuthenticationCacheInterceptor(authCacheOfServer))
-            .build() ;
+    static OkHttpClient clientOfServer=null ;
+
+
     final OkHttpClient tempClient=new OkHttpClient.Builder().build();
 
     public static void main(String args[]) {
@@ -72,8 +63,10 @@ public class Main {
         System.out.println(System.getProperty("user.dir"));
         FileInputStream inputStream= null;
         try {
-            inputStream = new FileInputStream(System.getProperty("user.dir")+"\\config\\config.properties");
-            properties.load(inputStream);
+            inputStream = new FileInputStream(System.getProperty("user.dir")+"\\config\\config.yml");
+            config= Yaml.loadType(inputStream,Config.class);
+            System.out.println(config.toString());
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -82,14 +75,19 @@ public class Main {
             System.exit(-1);
         }
 
-        schoolUUID=properties.getProperty("schoolUUID");
-        m_sDeviceIP=properties.getProperty("deviceIP");
-        m_sDevicePort=(short)Integer.parseInt(properties.getProperty("devicePort"));
-        m_sDeviceUser=properties.getProperty("deviceUser");
-        m_sDevicePwd=properties.getProperty("devicePWD");
-        serverPostUrl=properties.getProperty("serverPostUrl");
-        serverUser=properties.getProperty("serverUser");
-        serverPwd=properties.getProperty("serverPWD");
+        //初始化okhttpclient
+
+        authenticatorOfDevice=new DigestAuthenticator(new Credentials(m_sDeviceUser,m_sDevicePwd));
+        clientOfDevice=new OkHttpClient.Builder()
+                .authenticator(new CachingAuthenticatorDecorator(this.authenticatorOfDevice, this.authCacheOfDevice))
+                .addInterceptor(new AuthenticationCacheInterceptor(authCacheOfDevice))
+                .build() ;
+
+        authenticatorOfServer=new DigestAuthenticator(new Credentials(serverUser,serverPwd));
+        clientOfServer=new OkHttpClient.Builder()
+                .authenticator(new CachingAuthenticatorDecorator(this.authenticatorOfServer, this.authCacheOfServer))
+                .addInterceptor(new AuthenticationCacheInterceptor(authCacheOfServer))
+                .build() ;
 
         //打开日志
         String currentDate=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
@@ -703,6 +701,7 @@ public class Main {
                     float snapSimilarity=0f; //相似度
                     String snapStudentId="";  //学生id
                     String snapDeviceIP=""; //设备ip
+                    String envirmentPic=""; //环境大图
 
 
                     //获取人脸信息
@@ -750,7 +749,7 @@ public class Main {
                         PIDbuffers.rewind();
                         PIDbuffers.get(PIDbytes);
 
-                        snapStudentId=new String(PIDbytes).trim();
+//                        snapStudentId=new String(PIDbytes).trim();
                         sAlarmType = sAlarmType + "，人脸图片ID:" + snapStudentId;
                     }
 
@@ -773,7 +772,22 @@ public class Main {
                                 if(code== HttpURLConnection.HTTP_OK){
                                     byte[] imageData=response.body().bytes();
                                     if(imageData.length>0){
-                                        snapImages.put("originImage",imageData);
+//                                        snapImages.put("originImage",imageData); 暂时不写入服务器
+                                        //本地存储
+                                        try {
+                                            envirmentPic=snapStudentId+"_"+UUID.randomUUID()+".jpg";
+                                            File directory=new File("d:\\backup");
+                                            if (!directory.exists()){
+                                                directory.createNewFile();
+                                            }
+
+                                            FileOutputStream fileOutputStream=new FileOutputStream("d:\\backup\\"+envirmentPic);
+                                            fileOutputStream.write(imageData);
+                                            fileOutputStream.flush();
+                                            fileOutputStream.close();
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             } catch (IOException ex) {
@@ -835,9 +849,10 @@ public class Main {
 
                     final MediaType typeJpeg=MediaType.parse("image/jpeg");
                     MultipartBody.Builder builder = new MultipartBody.Builder();
-                    builder.addFormDataPart("schoolId",schoolUUID);
+                    builder.addFormDataPart("schoolId",schoolId);
                     builder.addFormDataPart("studentUuid",snapStudentId);
-                    builder.addFormDataPart("deviceIp",snapDeviceIP);
+                    builder.addFormDataPart("deviceIP",snapDeviceIP);
+                    builder.addFormDataPart("environmentImageName",envirmentPic);
                     SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     builder.addFormDataPart("atTime",simpleDateFormat.format(today).toString());
                     builder.setType(MultipartBody.FORM);
@@ -845,7 +860,7 @@ public class Main {
                     while (iterator.hasNext()){
                         Map.Entry<String,byte[]> entry= (Map.Entry) iterator.next();
                         RequestBody requestBody=RequestBody.create(typeJpeg,entry.getValue());
-                        builder.addFormDataPart("file",entry.getKey(),requestBody);
+                        builder.addFormDataPart(entry.getKey(),entry.getKey()+".jpg",requestBody);
                     }
                     Request request;
                     //提交服务器

@@ -1,0 +1,21 @@
+schoolId: 30
+serverPostUrl: https://jah.yn-pulse.com/api/device/alarm
+serverUser: Kdihdsjui76539jjuhgj
+serverPWD: Ku836tHdnjxh89Yuhsj
+devices:
+  -
+    ip: 192.168.1.10
+    port: 8000
+    user: admin
+    pwd: tbkj12345
+  -
+    ip: 192.168.1.11
+    port: 8000
+    user: admin
+    pwd: tbkj12345
+  -
+    ip: 192.168.1.11
+    port: 8000
+    user: admin
+    pwd: tbkj12345
+
