@@ -1,4 +1,5 @@
 import com.ynpulse.com.ynpulse.entity.Config;
+import com.ynpulse.com.ynpulse.entity.Device;
 import org.ho.yaml.Yaml;
 import org.junit.Test;
 
@@ -27,6 +28,10 @@ public class MyTest {
         inputStream=new FileInputStream(System.getProperty("user.dir")+"/config/config.yml");
         Config config= Yaml.loadType(inputStream,Config.class);
         System.out.println(config);
+
+        for(Device device:config.getDevices()){
+            System.out.println(device);
+        }
 
         TestThread t=new TestThread();
         t.start();

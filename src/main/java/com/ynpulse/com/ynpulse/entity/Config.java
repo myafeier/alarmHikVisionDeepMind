@@ -7,7 +7,7 @@ public class Config {
     private String serverPostUrl;
     private String serverUser;
     private String serverPWD;
-    private List<Device> devices;
+    private Device[] devices;
 
     @Override
     public String toString() {
@@ -52,11 +52,11 @@ public class Config {
         this.serverPWD = serverPWD;
     }
 
-    public List<Device> getDevices() {
+    public Device[] getDevices() {
         return devices;
     }
 
-    public void setDevices(List<Device> devices) {
+    public void setDevices(Device[] devices) {
         this.devices = devices;
     }
 }
