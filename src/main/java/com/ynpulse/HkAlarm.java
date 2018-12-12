@@ -30,6 +30,7 @@ public class HkAlarm extends Thread {
     private String serverPwd; //服务器端密码
     private String runTimePath; //运行路径
 
+    private String logFile; //日志文件名
     public BufferedOutputStream logStream=null;
 
     static HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
@@ -76,34 +77,14 @@ public class HkAlarm extends Thread {
                 .addInterceptor(new AuthenticationCacheInterceptor(authCacheOfServer))
                 .build() ;
 
-        //打开日志
-        String currentDate=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         runTimePath=System.getProperty("user.dir");
 
+        //建立日志目录
         File logDir=new File(runTimePath+File.separator+"logs");
         if(!logDir.exists()){
             logDir.mkdir();
         }
-        File file=new File(runTimePath+File.separator+"logs"+this.m_sDeviceIP+"_"+currentDate+".log");
-        if(!file.exists()){
-            try {
-                boolean created=file.createNewFile();
-                if(!created){
-                    System.out.printf("设备%s日志创建失败\n",this.m_sDeviceIP);
-                    System.exit(-1);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-        }
-        try {
-            FileOutputStream outputStream=new FileOutputStream(file);
-            logStream=new BufferedOutputStream(outputStream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+
 
         this.lUserID = new NativeLong(-1);
         this.lAlarmHandle = new NativeLong(-1);
@@ -174,11 +155,57 @@ public class HkAlarm extends Thread {
 
     //记录日志
     private void log(String content){
+
+        String currentDate=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        String newLogFile=runTimePath+File.separator+"logs"+File.separator+this.m_sDeviceIP+"_"+currentDate+".log";
+
+        if(logStream==null||!newLogFile.equals(logFile)){
+            if(logStream!=null){
+                try {
+                    logStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+            logFile=newLogFile;
+            File file=new File(logFile);
+            if(!file.exists()){
+                try {
+                    boolean created=file.createNewFile();
+                    if(!created){
+                        System.out.printf("设备%s日志创建失败\n",this.m_sDeviceIP);
+                        return;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+            try {
+                FileOutputStream outputStream=new FileOutputStream(file);
+                logStream=new BufferedOutputStream(outputStream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+
+
         try {
             this.logStream.write(content.getBytes());
             this.logStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            if(logStream!=null){
+                try {
+                    logStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 
@@ -369,8 +396,6 @@ public class HkAlarm extends Thread {
                     break;
             }
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }
