@@ -2,3 +2,7 @@
 *.log
 target
 .DS_Store
+.classpath
+.project
+.vscode
+.settings

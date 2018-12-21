@@ -33,7 +33,7 @@ public class HkAlarm extends Thread {
     private String logFile; //日志文件名
     public BufferedOutputStream logStream=null;
 
-    static HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
+    private HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
     HCNetSDK.NET_DVR_DEVICEINFO_V30 m_strDeviceInfo;//设备信息
     NativeLong lUserID;//用户句柄
     NativeLong lAlarmHandle;//报警布防句柄
@@ -41,15 +41,15 @@ public class HkAlarm extends Thread {
     HCNetSDK.FMSGCallBack fMSFCallBack;//报警回调函数实现
     HCNetSDK.FMSGCallBack_V31 fMSFCallBack_V31;//报警回调函数实现
 
-    static DigestAuthenticator authenticatorOfDevice=null;
+    private DigestAuthenticator authenticatorOfDevice=null;
     final Map<String, CachingAuthenticator> authCacheOfDevice=new ConcurrentHashMap<String, CachingAuthenticator>();
-    static OkHttpClient clientOfDevice=null;
+    private OkHttpClient clientOfDevice=null;
 
 
 
-    static DigestAuthenticator authenticatorOfServer=null;
+    private DigestAuthenticator authenticatorOfServer=null;
     final Map<String, CachingAuthenticator> authCacheOfServer=new ConcurrentHashMap<String, CachingAuthenticator>();
-    static OkHttpClient clientOfServer=null ;
+    private OkHttpClient clientOfServer=null ;
 
 
     final OkHttpClient tempClient=new OkHttpClient.Builder().build();
