@@ -310,7 +310,7 @@ public class HkAlarm extends Thread {
 //                                        snapImages.put("originImage",imageData); 暂时不写入服务器
                                         //本地存储
                                         try {
-                                            envirmentPic=snapStudentId+"_"+ UUID.randomUUID()+".jpg";
+                                            envirmentPic=snapStudentId.trim()+"_"+ UUID.randomUUID()+".jpg";
                                             SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
                                             String snapshotPath=runTimePath+File.separator+"snapshot"+File.separator+simpleDateFormat.format(new Date());
                                             File directory=new File(snapshotPath);
