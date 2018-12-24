@@ -315,7 +315,7 @@ public class HkAlarm extends Thread {
                                             String snapshotPath=runTimePath+File.separator+"snapshot"+File.separator+simpleDateFormat.format(new Date());
                                             File directory=new File(snapshotPath);
                                             if (!directory.exists()){
-                                                directory.createNewFile();
+                                                directory.mkdirs();
                                             }
 
                                             FileOutputStream fileOutputStream=new FileOutputStream(snapshotPath+File.separator+envirmentPic);
