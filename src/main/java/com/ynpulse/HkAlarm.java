@@ -317,7 +317,7 @@ public class HkAlarm extends Thread {
                                             if (!directory.exists()){
                                                 directory.mkdirs();
                                             }
-
+                                            System.out.println(snapshotPath+File.separator+envirmentPic);
                                             FileOutputStream fileOutputStream=new FileOutputStream(snapshotPath+File.separator+envirmentPic);
                                             fileOutputStream.write(imageData);
                                             fileOutputStream.flush();
