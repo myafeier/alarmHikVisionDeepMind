@@ -365,7 +365,7 @@ public class HkAlarm extends Thread {
                     builder.addFormDataPart("studentUuid",snapStudentId);
                     builder.addFormDataPart("deviceIP",snapDeviceIP);
                     builder.addFormDataPart("environmentImageName",envirmentPic);
-                    SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     builder.addFormDataPart("atTime",simpleDateFormat.format(today).toString());
                     builder.setType(MultipartBody.FORM);
                     Iterator iterator=snapImages.entrySet().iterator();
