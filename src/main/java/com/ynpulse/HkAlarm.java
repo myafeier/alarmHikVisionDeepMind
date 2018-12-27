@@ -225,7 +225,7 @@ public class HkAlarm extends Thread {
 
             //报警时间
             Date today = new Date();
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String[] sIP = new String[2];
             sAlarmType = new String("lCommand=") + lCommand.intValue();
             //lCommand是传的报警类型
