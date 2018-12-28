@@ -27,6 +27,7 @@ public class Main {
         for (Device device:config.getDevices()) {
             HkAlarm ha=new HkAlarm(config.getSchoolId(),device.getIp(),device.getPort(),device.getUser(),device.getPwd(),config.getServerPostUrl(),config.getServerUser(),config.getServerPWD());
             ha.start();
+            System.out.println("device started:"+device.getIp());
         }
 
     }
