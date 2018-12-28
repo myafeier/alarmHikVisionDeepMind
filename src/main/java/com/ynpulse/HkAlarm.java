@@ -405,6 +405,7 @@ public class HkAlarm extends Thread {
     public void run() {
         loginToDevice();
         setupAlarmChan();
+        System.out.println("to sleep");
         while (true){
             try {
                 sleep(1000);
