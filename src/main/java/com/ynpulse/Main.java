@@ -27,23 +27,6 @@ public class Main {
         for (Device device:config.getDevices()) {
             HkAlarm ha=new HkAlarm(config.getSchoolId(),device.getIp(),device.getPort(),device.getUser(),device.getPwd(),config.getServerPostUrl(),config.getServerUser(),config.getServerPWD());
             ha.start();
-//            try {
-//                ha.join();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-        }
-
-        while(true) {
-            synchronized (lock) {
-                System.out.println("2.无限期等待中...");
-                try {
-                    lock.wait(); //等待，直到其它线程调用 lock.notify()
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
         }
 
     }
